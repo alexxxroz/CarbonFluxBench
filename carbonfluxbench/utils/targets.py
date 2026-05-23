@@ -160,7 +160,7 @@ def plot_sites(
     ax.set_facecolor('#001f54')
     ax.spines['geo'].set_visible(False)
     ax.axis('off')
-    ax.set_title(f'CarbonBench (split={split_type}): train vs test sites', color='white', fontsize=22)
+    ax.set_title(f'CarbonFluxBench (split={split_type}): train vs test sites', color='white', fontsize=22)
 
     plt.tight_layout(pad=0)
     if len(save_path) > 0:

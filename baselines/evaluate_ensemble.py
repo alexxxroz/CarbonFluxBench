@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Subset
 
 from sklearn.metrics import r2_score, root_mean_squared_error
 
-import carbonbench
+import carbonfluxbench
 from utils import get_model
 
 
@@ -143,21 +143,21 @@ def main():
     window_size = 30
     stride = 15
     
-    y = carbonbench.load_targets(targets, include_qc)
-    y_train, y_test = carbonbench.split_targets(df=y,
+    y = carbonfluxbench.load_targets(targets, include_qc)
+    y_train, y_test = carbonfluxbench.split_targets(df=y,
         split_type=args.split_type,
         verbose=False, plot=False
     )
     
-    modis = carbonbench.load_modis()
-    era = carbonbench.load_era('minimal')
+    modis = carbonfluxbench.load_modis()
+    era = carbonfluxbench.load_era('minimal')
     
-    train, _, test, x_scaler, y_scaler = carbonbench.join_features(
+    train, _, test, x_scaler, y_scaler = carbonfluxbench.join_features(
         y_train, y_test, modis, era, val_ratio=0.2, scale=True
     )
 
-    train_hist = carbonbench.historical_cache(train, era, modis, x_scaler, window_size)
-    train_dataset = carbonbench.SlidingWindowDataset(
+    train_hist = carbonfluxbench.historical_cache(train, era, modis, x_scaler, window_size)
+    train_dataset = carbonfluxbench.SlidingWindowDataset(
         train_hist, targets, include_qc,
         window_size=window_size, stride=stride,
         cat_features=['IGBP', 'Koppen', 'Koppen_short']
@@ -165,8 +165,8 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False)
 
     encoders = train_dataset.encoders  
-    test_hist = carbonbench.historical_cache(test, era, modis, x_scaler, window_size)
-    test_dataset = carbonbench.SlidingWindowDataset(
+    test_hist = carbonfluxbench.historical_cache(test, era, modis, x_scaler, window_size)
+    test_dataset = carbonfluxbench.SlidingWindowDataset(
         test_hist, targets, include_qc,
         window_size=window_size, stride=1, QC_threshold=test_QC_threshold,
         encoders=encoders,
@@ -212,7 +212,7 @@ def main():
 
     # Create TAM-RL test dataset if needed
     if args.model == 'tam-rl':
-        test_dataset_tamrl = carbonbench.SlidingWindowDatasetTAMRL(
+        test_dataset_tamrl = carbonfluxbench.SlidingWindowDatasetTAMRL(
             test_hist, targets, include_qc,
             window_size=window_size, stride=1, QC_threshold=test_QC_threshold,
             encoders=encoders,
@@ -241,7 +241,7 @@ def main():
                 forward_path = os.path.join(args.model_dir, model_subdir, 'forward_model.pt')
                 inverse_path = os.path.join(args.model_dir, model_subdir, 'inverse_model.pt')
 
-                forward_model = carbonbench.tamlstm(
+                forward_model = carbonfluxbench.tamlstm(
                     model_kwargs['input_dynamic_channels'],
                     model_kwargs['latent_dim'],
                     model_kwargs['hidden_dim'],
@@ -249,7 +249,7 @@ def main():
                     model_kwargs['dropout'],
                     model_kwargs['layers']
                 ).to(device)
-                inverse_model = carbonbench.ae_tamrl(
+                inverse_model = carbonfluxbench.ae_tamrl(
                     input_channels=model_kwargs['input_dynamic_channels'] + model_kwargs['input_static_channels'],
                     code_dim=model_kwargs['latent_dim'],
                     hidden_dim=model_kwargs['latent_dim'],
@@ -294,8 +294,8 @@ def main():
             
             r2 = r2_score(y_true, y_pred)
             rmse = root_mean_squared_error(y_true, y_pred)
-            nmae = carbonbench.normalized_mae(np.mean(y_true), y_true, y_pred)
-            rae = carbonbench.relative_absolute_error(y_true, y_pred)
+            nmae = carbonfluxbench.normalized_mae(np.mean(y_true), y_true, y_pred)
+            rae = carbonfluxbench.relative_absolute_error(y_true, y_pred)
             
             results[target]['site'].append(site)
             results[target]['IGBP'].append(test[test.site == site].IGBP.values[0])

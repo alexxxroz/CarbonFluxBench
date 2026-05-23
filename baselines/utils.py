@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-import carbonbench
+import carbonfluxbench
 
 
 def set_seed(seed):
@@ -16,13 +16,13 @@ def set_seed(seed):
 
 def get_model(model_name, **kwargs):
     model_map = {
-        'lstm': carbonbench.lstm,
-        'ctlstm': carbonbench.ctlstm,
-        'gru': carbonbench.gru,
-        'ctgru': carbonbench.ctgru,
-        'transformer': carbonbench.transformer,
-        'patch_transformer': carbonbench.patch_transformer,
-        'tam-rl': carbonbench.lstm,
+        'lstm': carbonfluxbench.lstm,
+        'ctlstm': carbonfluxbench.ctlstm,
+        'gru': carbonfluxbench.gru,
+        'ctgru': carbonfluxbench.ctgru,
+        'transformer': carbonfluxbench.transformer,
+        'patch_transformer': carbonfluxbench.patch_transformer,
+        'tam-rl': carbonfluxbench.lstm,
     }
     return model_map[model_name](**kwargs)
 

@@ -1,10 +1,10 @@
-# CarbonBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning
+# CarbonFluxBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning
 
 <p align="center">
-  <img src="CarbonBench.png" width="700"/>
+  <img src="CarbonFluxBench.png" width="700"/>
 </p>
 
-CarbonBench comprises over 1.3 million daily observations from 567 eddy covariance flux tower sites globally (2000-2024). It provides stratified evaluation protocols that explicitly test generalization across unseen vegetation types and climate regimes, a harmonized set of remote sensing and meteorological features, and reproducible baselines ranging from tree-based methods to domain-generalization architectures.
+CarbonFluxBench comprises over 1.3 million daily observations from 567 eddy covariance flux tower sites globally (2000-2024). It provides stratified evaluation protocols that explicitly test generalization across unseen vegetation types and climate regimes, a harmonized set of remote sensing and meteorological features, and reproducible baselines ranging from tree-based methods to domain-generalization architectures.
 
 ## Prediction Targets
 
@@ -28,7 +28,7 @@ All features are harmonized to daily resolution per site. See Appendix A in the 
 
 ## Train-Test Splits
 
-CarbonBench provides two complementary stratified site-holdout splits for zero-shot evaluation:
+CarbonFluxBench provides two complementary stratified site-holdout splits for zero-shot evaluation:
 
 - **IGBP-stratified**: partitioned by vegetation type (16 classes). 80/20 split for common classes, 50/50 for rare classes (≤10 sites).
 - **Köppen-stratified**: partitioned by climate zone (5 classes). Uniform 80/20 split.
@@ -38,8 +38,8 @@ CarbonBench provides two complementary stratified site-holdout splits for zero-s
 First, create and activate a virtual environment:
 
 ```bash
-python -m venv carbonbench-env
-source carbonbench-env/bin/activate  # On Windows: carbonbench-env\Scripts\activate
+python -m venv carbonfluxbench-env
+source carbonfluxbench-env/bin/activate  # On Windows: carbonfluxbench-env\Scripts\activate
 ```
 
 Then install the package:
@@ -73,7 +73,7 @@ Then initialize it:
 git lfs install
 ```
 
-Download the benchmark data from [Hugging Face](https://huggingface.co/datasets/alexroz/CarbonBench) into the `data/` directory:
+Download the benchmark data from [Hugging Face](https://huggingface.co/datasets/alexroz/CarbonFluxBench) into the `data/` directory:
 
 ```bash
 pip install huggingface_hub
@@ -82,7 +82,7 @@ bash scripts/download_data.sh
 
 Or manually:
 ```bash
-huggingface-cli download alexroz/CarbonBench --repo-type dataset --local-dir data
+huggingface-cli download alexroz/CarbonFluxBench --repo-type dataset --local-dir data
 ```
 
 ## Quickstart
@@ -96,17 +96,17 @@ The recommended entry point is [`examples/workflow_example.ipynb`](examples/work
 5. Site-level evaluation with stratified metrics
 
 ```python
-import carbonbench
+import carbonfluxbench
 
 # Load targets and split
 targets = ['GPP_NT_VUT_USTAR50', 'RECO_NT_VUT_USTAR50', 'NEE_VUT_USTAR50']
-y = carbonbench.load_targets(targets, include_qc=True)
-y_train, y_test = carbonbench.split_targets(y, split_type='Koppen')
+y = carbonfluxbench.load_targets(targets, include_qc=True)
+y_train, y_test = carbonfluxbench.split_targets(y, split_type='Koppen')
 
 # Load features and join
-modis = carbonbench.load_modis()
-era = carbonbench.load_era('minimal')
-train, val, test, x_scaler, y_scaler = carbonbench.join_features(
+modis = carbonfluxbench.load_modis()
+era = carbonfluxbench.load_era('minimal')
+train, val, test, x_scaler, y_scaler = carbonfluxbench.join_features(
     y_train, y_test, modis, era, scale=True
 )
 ```
@@ -157,7 +157,7 @@ All metrics are computed per-site, then reported as quantiles (25th, median, 75t
 ## Repository Structure
 
 ```
-carbonbench/          # Python package
+carbonfluxbench/          # Python package
   models/             # LSTM, GRU, Transformer, TAM-RL architectures
   utils/              # Data loading, processing, evaluation, loss function
 baselines/            # Training and evaluation scripts for paper results
@@ -169,8 +169,8 @@ tests/                # Unit tests
 ## Citation
 
 <!-- ```bibtex
-@inproceedings{rozanov2025carbonbench,
-  title={CarbonBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning},
+@inproceedings{rozanov2025carbonfluxbench,
+  title={CarbonFluxBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning},
   author={Rozanov, Aleksei and Renganathan, Arvind and Zhang, Yimeng and Kumar, Vipin},
   booktitle={Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
   year={2025}

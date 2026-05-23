@@ -14,7 +14,7 @@ from sklearn.utils.class_weight import compute_class_weight
 
 from tqdm import tqdm
 
-import carbonbench
+import carbonfluxbench
 
 from utils import train_tamrl, get_model, set_seed
 
@@ -26,7 +26,7 @@ def load_config(config_path):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='CarbonBench Ensemble Model Training')
+    parser = argparse.ArgumentParser(description='CarbonFluxBench Ensemble Model Training')
     parser.add_argument('--model', type=str, required=True,
                         choices=['lstm', 'ctlstm', 'gru', 'ctgru', 'transformer', 'patch_transformer', 'tam-rl'],
                         help='Model architecture')
@@ -75,16 +75,16 @@ def main():
     include_qc = True
     test_QC_threshold = 1
     
-    y = carbonbench.load_targets(targets, include_qc)
-    y_train, y_test = carbonbench.split_targets(
+    y = carbonfluxbench.load_targets(targets, include_qc)
+    y_train, y_test = carbonfluxbench.split_targets(
         y, split_type=args.split_type, 
         verbose=True, plot=False
     )
     
-    modis = carbonbench.load_modis()
-    era = carbonbench.load_era('minimal')
+    modis = carbonfluxbench.load_modis()
+    era = carbonfluxbench.load_era('minimal')
     
-    train, val, _, x_scaler, y_scaler = carbonbench.join_features(
+    train, val, _, x_scaler, y_scaler = carbonfluxbench.join_features(
         y_train, y_test, modis, era, val_ratio=0.2, scale=True
     )
     
@@ -94,8 +94,8 @@ def main():
     stride = 15
     num_workers = 4
     
-    train_hist = carbonbench.historical_cache(train, era, modis, x_scaler, window_size)
-    train_dataset = carbonbench.SlidingWindowDataset(
+    train_hist = carbonfluxbench.historical_cache(train, era, modis, x_scaler, window_size)
+    train_dataset = carbonfluxbench.SlidingWindowDataset(
         train_hist, targets, include_qc,
         window_size=window_size, stride=stride,
         cat_features=['IGBP', 'Koppen', 'Koppen_short']
@@ -105,8 +105,8 @@ def main():
         num_workers=num_workers, drop_last=False
     )
     
-    val_hist = carbonbench.historical_cache(val, era, modis, x_scaler, window_size)
-    val_dataset = carbonbench.SlidingWindowDataset(
+    val_hist = carbonfluxbench.historical_cache(val, era, modis, x_scaler, window_size)
+    val_dataset = carbonfluxbench.SlidingWindowDataset(
         val_hist, targets, include_qc,
         window_size=window_size, stride=stride,
         encoders=train_dataset.encoders,
@@ -163,7 +163,7 @@ def main():
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Model parameters: {num_params:,}")
     
-    criterion = carbonbench.CustomLoss(IGBP_weights, Koppen_weights, device=device)
+    criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device)
     optimizer = optim.AdamW(model.parameters(), lr=best_params['lr'])
     scheduler = StepLR(optimizer, step_size=10, gamma=0.5)
     
@@ -244,13 +244,13 @@ def main():
     print(f"\nTraining complete, best val loss: {best_val_loss:.4f}")
 
     if args.model == 'tam-rl':
-        inverse_model = carbonbench.ae_tamrl(
+        inverse_model = carbonfluxbench.ae_tamrl(
             input_channels=model_kwargs['input_dynamic_channels'] + model_kwargs['input_static_channels'],
             code_dim=model_kwargs['latent_dim'],
             hidden_dim=model_kwargs['latent_dim'],
             output_channels=model_kwargs['latent_dim']
         ).to(device)
-        forward_model = carbonbench.tamlstm(
+        forward_model = carbonfluxbench.tamlstm(
             model_kwargs['input_dynamic_channels'],
             model_kwargs['latent_dim'],
             model_kwargs['hidden_dim'],
@@ -262,18 +262,18 @@ def main():
         encoder_weights = {k.replace('encoder.', ''): v for k, v in best_model_state.items() if k.startswith('encoder.')}
         forward_model.encoder.load_state_dict(encoder_weights)
 
-        criterion_tamrl = carbonbench.CustomLoss(IGBP_weights, Koppen_weights)
+        criterion_tamrl = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights)
         optimizer_tamrl = optim.Adam(list(inverse_model.parameters()) + list(forward_model.parameters()), lr=1e-3)
         scheduler_tamrl = StepLR(optimizer_tamrl, step_size=10, gamma=0.5)
 
-        train_dataset_tamrl = carbonbench.SlidingWindowDatasetTAMRL(
+        train_dataset_tamrl = carbonfluxbench.SlidingWindowDatasetTAMRL(
             train_hist, targets, include_qc,
             window_size=window_size, stride=stride,
             cat_features=['IGBP', 'Koppen', 'Koppen_short']
         )
         train_loader_tamrl = DataLoader(train_dataset_tamrl, batch_size=batch_size, shuffle=True)
 
-        val_dataset_tamrl = carbonbench.SlidingWindowDatasetTAMRL(
+        val_dataset_tamrl = carbonfluxbench.SlidingWindowDatasetTAMRL(
             val_hist, targets, include_qc,
             window_size=window_size, stride=stride,
             encoders=train_dataset.encoders,

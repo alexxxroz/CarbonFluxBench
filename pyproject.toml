@@ -1,7 +1,7 @@
 [project]
-name = "carbonbench"
+name = "carbonfluxbench"
 version = "1.0.0"
-description = "CarbonBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning"
+description = "CarbonFluxBench: A Global Benchmark for Upscaling of Carbon Fluxes Using Zero-Shot Learning"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -27,7 +27,7 @@ dependencies = [
 [project.optional-dependencies]
 baselines = ["pyyaml>=6.0", "tqdm>=4.65"]
 test = ["pytest>=7.0"]
-dev = ["carbonbench[baselines,test]"]
+dev = ["carbonfluxbench[baselines,test]"]
 
 [build-system]
 requires = ["setuptools"]

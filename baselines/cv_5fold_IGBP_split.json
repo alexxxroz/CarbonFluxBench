@@ -1,5 +1,5 @@
 {
-  "description": "5-fold cross-validation split for CarbonBench",
+  "description": "5-fold cross-validation split for CarbonFluxBench",
   "split_type": "IGBP",
   "n_folds": 5,
   "stratify_by": "Koppen",
