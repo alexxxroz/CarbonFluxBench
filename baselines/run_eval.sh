@@ -13,7 +13,7 @@
 source ~/.bashrc
 conda activate ct-lstm
 
-MODELS=("tam-rl") # "lstm" "ctlstm" "gru" "ctgru" "transformer"
+MODELS=('ctgru') #("lstm" "ctlstm" "gru" "ctgru" "transformer" "patch_transformer")
 SPLITS=("Koppen" "IGBP") 
 
 NUM_MODELS=${#MODELS[@]}
@@ -34,4 +34,5 @@ echo "Split: $SPLIT"
 python evaluate_ensemble.py \
     --model $MODEL \
     --split_type $SPLIT \
-    --device cuda
+    --device cuda \
+    --feature_set standard

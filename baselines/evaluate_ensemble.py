@@ -34,6 +34,8 @@ def parse_args():
                         help='Batch size')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device')
+    parser.add_argument('--feature_set', type=str, default='minimal',
+                        choices=['minimal', 'standard', 'full'],)
     return parser.parse_args()
 
 
@@ -120,7 +122,7 @@ def main():
     # Check which seed models exist
     available_seeds = []
     for seed in seeds:
-        model_subdir = f"{args.model}_seed{seed}_{args.split_type}"
+        model_subdir = f"{args.model}_seed{seed}_{args.split_type}" if args.feature_set=='minimal' else f"{args.model}_seed{seed}_{args.split_type}_{args.feature_set}"
         if args.model == 'tam-rl':
             model_path = os.path.join(args.model_dir, model_subdir, 'forward_model.pt')
         else:
@@ -150,7 +152,7 @@ def main():
     )
     
     modis = carbonbench.load_modis()
-    era = carbonbench.load_era('minimal')
+    era = carbonbench.load_era(args.feature_set)
     
     train, _, test, x_scaler, y_scaler = carbonbench.join_features(
         y_train, y_test, modis, era, val_ratio=0.2, scale=True
@@ -235,7 +237,7 @@ def main():
         true_values = None
 
         for seed in available_seeds:
-            model_subdir = f"{args.model}_seed{seed}_{args.split_type}"
+            model_subdir = f"{args.model}_seed{seed}_{args.split_type}" if args.feature_set=='minimal' else f"{args.model}_seed{seed}_{args.split_type}_{args.feature_set}"
 
             if args.model == 'tam-rl':
                 forward_path = os.path.join(args.model_dir, model_subdir, 'forward_model.pt')
@@ -327,7 +329,7 @@ def main():
     
     results_df = pd.concat(all_results, ignore_index=True)
     
-    output_file = os.path.join(args.output_dir, f"{args.model}_{args.split_type}_ensemble.csv")
+    output_file = os.path.join(args.output_dir, f"{args.model}_{args.split_type}_{args.feature_set}_ensemble.csv")
     results_df.to_csv(output_file, index=False)
     print(f"\nResults saved to: {output_file}")
 

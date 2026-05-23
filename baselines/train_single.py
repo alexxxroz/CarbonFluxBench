@@ -45,6 +45,8 @@ def parse_args():
                         help='Batch size')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device (cuda or cpu)')
+    parser.add_argument('--feature_set', type=str, default='minimal',
+                        choices=['minimal', 'standard', 'full'],)
     return parser.parse_args()
 
 
@@ -65,7 +67,7 @@ def main():
     print(f"Config file: {args.config}")
     print(f"Best params from grid search: {best_params}")
     
-    output_subdir = f"{args.model}_seed{args.seed}_{args.split_type}"
+    output_subdir = f"{args.model}_seed{args.seed}_{args.split_type}_{args.feature_set}"
     output_path = os.path.join(args.output_dir, output_subdir)
     os.makedirs(output_path, exist_ok=True)
     print(f"Output: {output_path}")
@@ -82,7 +84,7 @@ def main():
     )
     
     modis = carbonbench.load_modis()
-    era = carbonbench.load_era('minimal')
+    era = carbonbench.load_era(args.feature_set)
     
     train, val, _, x_scaler, y_scaler = carbonbench.join_features(
         y_train, y_test, modis, era, val_ratio=0.2, scale=True

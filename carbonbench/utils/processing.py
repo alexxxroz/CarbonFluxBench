@@ -263,7 +263,8 @@ def tabular(
         targets: list, 
         include_qc: bool=True, 
         QC_threshold: int=0, 
-        cat_features: list=['IGBP', 'Koppen', 'Koppen_short']
+        cat_features: list=['IGBP', 'Koppen', 'Koppen_short'],
+        return_dates: bool=False, 
     ):
     '''
     Resamples time series from each site and interpolates MODIS observations dropping the leftover Nans.
@@ -282,8 +283,14 @@ def tabular(
     X = df.loc[:, ~df.columns.isin(targets + ['date', 'NEE_VUT_USTAR50_QC'])]
     X[cat_features] = X[cat_features].astype('category')
     y = df[targets]
+    dates = df['date'].values
+    
     if include_qc:
         y_qc = df['NEE_VUT_USTAR50_QC']
+        if return_dates:
+            return X, y, y_qc, dates
         return X, y, y_qc
     else:
+        if return_dates:
+            return X, y, dates
         return X, y
