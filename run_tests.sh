@@ -10,7 +10,7 @@ fi
 
 source "$VENV_DIR/bin/activate"
 
-echo "Installing carbonbench with test dependencies..."
+echo "Installing carbonfluxbench with test dependencies..."
 pip install -e ".[dev]" --quiet
 
 echo "Running tests..."

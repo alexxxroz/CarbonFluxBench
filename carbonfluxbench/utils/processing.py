@@ -247,7 +247,7 @@ def historical_cache(
         extra_mod = extra_mod[(extra_mod.date >= window_start) & (extra_mod.date < first_date)]
         
         extra = pd.merge(extra_era, extra_mod, on=['site', 'date'], how='outer')
-        extra['lat'], extra['lon'] = df_site['lat'].unique().item(), df_site['lon'].unique().item()
+        extra['lat'], extra['lon'] = df_site['lat'].iloc[0], df_site['lon'].iloc[0]
         
         extra[x_scaler.feature_names_in_] = x_scaler.transform(extra[x_scaler.feature_names_in_])
         

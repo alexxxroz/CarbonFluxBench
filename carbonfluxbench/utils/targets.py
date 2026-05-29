@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from pathlib import Path
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.join(BASE, "..", "..")
-DATA = os.path.join(ROOT, "data")
+DATA = Path(__file__).resolve().parents[2] / "data"
 
 def load_targets(
         targets: list=['GPP_NT_VUT_USTAR50', 'RECO_NT_VUT_USTAR50', 'NEE_VUT_USTAR50'],
@@ -24,12 +23,13 @@ def load_targets(
     This function loads a file containing ground-true, pre-processes it, and joins Koppen climate classes,
     returning a pandas dataframe as a result.
     '''
-    df = pd.read_parquet(f'{DATA}/target_fluxes.parquet')
+    df = pd.read_parquet(f'{DATA}/target_fluxes_v2.parquet')
     df = df.replace(-9999, np.nan)
     df.TIMESTAMP = pd.to_datetime(df.TIMESTAMP, format='%Y%m%d')
     df = df.rename(columns={'TIMESTAMP': 'date'})
     df = df[df.date>=pd.to_datetime('2000-02-24')] # start date of MODIS observations
-
+    df.lat, df.lon = np.round(df.lat.values,3), np.round(df.lon.values,3)
+    
     with open(f'{DATA}/koppen_sites.json', 'r') as file:
         koppen = json.load(file)
     with open(f'{DATA}/koppen_sites_short.json', 'r') as file:
@@ -161,7 +161,7 @@ def plot_sites(
     ax.set_facecolor('#001f54')
     ax.spines['geo'].set_visible(False)
     ax.axis('off')
-    ax.set_title(f'CarbonBench (split={split_type}): train vs test sites', color='white', fontsize=22)
+    ax.set_title(f'CarbonFluxBench (split={split_type}): train vs test sites', color='white', fontsize=22)
 
     plt.tight_layout(pad=0)
     if len(save_path) > 0:

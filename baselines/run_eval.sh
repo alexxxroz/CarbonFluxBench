@@ -8,12 +8,12 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
-#SBATCH --array=0-1
+#SBATCH --array=12 #0-13
 
 source ~/.bashrc
 conda activate ct-lstm
 
-MODELS=('ctgru') #("lstm" "ctlstm" "gru" "ctgru" "transformer" "patch_transformer")
+MODELS=("lstm" "ctlstm" "gru" "ctgru" "transformer" "patch_transformer" 'tam-rl')
 SPLITS=("Koppen" "IGBP") 
 
 NUM_MODELS=${#MODELS[@]}
@@ -35,4 +35,4 @@ python evaluate_ensemble.py \
     --model $MODEL \
     --split_type $SPLIT \
     --device cuda \
-    --feature_set standard
+    --feature_set full

@@ -1,7 +1,7 @@
 import torch
 import pytest
 
-import carbonbench
+import carbonfluxbench
 
 
 BATCH = 4
@@ -15,7 +15,7 @@ STRIDE = 15
 
 class TestLSTM:
 	def test_forward_shape(self):
-		model = carbonbench.lstm(
+		model = carbonfluxbench.lstm(
 			input_dynamic_channels=DYN_CH, hidden_dim=HIDDEN,
 			output_channels=OUT_CH, dropout=0.1, layers=1
 		)
@@ -26,7 +26,7 @@ class TestLSTM:
 
 class TestCTLSTM:
 	def test_forward_shape(self):
-		model = carbonbench.ctlstm(
+		model = carbonfluxbench.ctlstm(
 			input_dynamic_channels=DYN_CH, input_static_channels=STATIC_CH,
 			hidden_dim=HIDDEN, output_channels=OUT_CH, dropout=0.1, layers=1
 		)
@@ -38,7 +38,7 @@ class TestCTLSTM:
 
 class TestGRU:
 	def test_forward_shape(self):
-		model = carbonbench.gru(
+		model = carbonfluxbench.gru(
 			input_dynamic_channels=DYN_CH, hidden_dim=HIDDEN,
 			output_channels=OUT_CH, dropout=0.1, layers=1
 		)
@@ -49,7 +49,7 @@ class TestGRU:
 
 class TestCTGRU:
 	def test_forward_shape(self):
-		model = carbonbench.ctgru(
+		model = carbonfluxbench.ctgru(
 			input_dynamic_channels=DYN_CH, input_static_channels=STATIC_CH,
 			hidden_dim=HIDDEN, output_channels=OUT_CH, dropout=0.1, layers=1
 		)
@@ -61,7 +61,7 @@ class TestCTGRU:
 
 class TestTransformer:
 	def test_forward_shape(self):
-		model = carbonbench.transformer(
+		model = carbonfluxbench.transformer(
 			input_dynamic_channels=DYN_CH, input_static_channels=STATIC_CH,
 			output_channels=OUT_CH, seq_len=SEQ_LEN, hidden_dim=HIDDEN,
 			nhead=4, num_layers=2, dropout=0.1
@@ -74,7 +74,7 @@ class TestTransformer:
 
 class TestPatchTransformer:
 	def test_forward_shape(self):
-		model = carbonbench.patch_transformer(
+		model = carbonfluxbench.patch_transformer(
 			input_dynamic_channels=DYN_CH, input_static_channels=STATIC_CH,
 			output_channels=OUT_CH, seq_len=SEQ_LEN, pred_len=STRIDE,
 			patch_len=4, stride=4, hidden_dim=HIDDEN,
@@ -88,7 +88,7 @@ class TestPatchTransformer:
 
 class TestTAMLSTM:
 	def test_forward_shape(self):
-		model = carbonbench.tamlstm(
+		model = carbonfluxbench.tamlstm(
 			input_dynamic_channels=DYN_CH, input_static_channels=STATIC_CH,
 			hidden_dim=HIDDEN, output_channels=OUT_CH, dropout=0.1, layers=1
 		)
@@ -101,7 +101,7 @@ class TestTAMLSTM:
 class TestAETAMRL:
 	def test_forward_shape(self):
 		in_ch = DYN_CH + STATIC_CH
-		model = carbonbench.ae_tamrl(
+		model = carbonfluxbench.ae_tamrl(
 			input_channels=in_ch, hidden_dim=32,
 			code_dim=16, output_channels=16
 		)

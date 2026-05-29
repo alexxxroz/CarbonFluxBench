@@ -21,6 +21,8 @@ def load_modis():
     '''
     df = pd.read_parquet(f'{DATA}/MOD09GA.parquet')
     df.date = pd.to_datetime(df.date)
+    df.site = [x.split('_')[1] if len(x.split('_')) > 1 else x for x in df.site.values]
+    df = df.loc[df[['date', 'site']].drop_duplicates().index]
     return df
 
 def load_era(
@@ -35,6 +37,8 @@ def load_era(
     
     df = pd.read_parquet(f'{DATA}/ERA5.parquet', columns=col2keep)
     df.date = pd.to_datetime(df.date)
+    df.site = [x.split('_')[1] if len(x.split('_')) > 1 else x for x in df.site.values]
+    df = df.loc[df[['date', 'site']].drop_duplicates().index]
     return df
 
 def join_features(

@@ -1,1 +1,5 @@
-#TODO: script to download the benchmarks from Zenodo
+#!/usr/bin/env bash
+set -euo pipefail
+
+DATA_DIR="$(cd "$(dirname "$0")/.." && pwd)/data"
+git clone https://huggingface.co/datasets/alexroz/CarbonFluxBench "$DATA_DIR"

@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 import pytest
 
-from carbonbench.utils.processing import SlidingWindowDataset, SlidingWindowDatasetTAMRL
+from carbonfluxbench.utils.processing import SlidingWindowDataset, SlidingWindowDatasetTAMRL
 
 
 def make_synthetic_hist(n_sites=2, n_days=60):

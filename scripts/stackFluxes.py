@@ -100,6 +100,12 @@ df.loc[df['site'].str.startswith('AMF'), ['lat', 'lon', 'IGBP']] = ameri_merged[
 df.loc[df['site'].str.startswith('ICOS'), ['lat', 'lon', 'IGBP']] = icos_merged[['LAT', 'LON', 'IGBP']].values
 df.loc[df['site'].str.startswith('JPX'), ['lat', 'lon', 'IGBP']] = jap_merged[['lat', 'lon', 'IGBP']].values
 df.dropna(inplace=True)
-
 df.to_parquet(f'../data/target_fluxes.parquet', index=None)
+
+# ver2 changes 
+# df['network'] = [x.split('_')[0] for x in df.site.values]
+# df['site'] = [x.split('_')[1] for x in df.site.values]
+# df = df.loc[df[['TIMESTAMP', 'site']].drop_duplicates().index]
+# df.to_parquet(f'../data/target_fluxes_v2.parquet', index=None)
+
 print(f"Targets are stacked!")
