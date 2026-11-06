@@ -165,7 +165,7 @@ def main():
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Model parameters: {num_params:,}")
     
-    criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device)
+    criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device, y_scaler=y_scaler)
     optimizer = optim.AdamW(model.parameters(), lr=best_params['lr'])
     scheduler = StepLR(optimizer, step_size=10, gamma=0.5)
     
@@ -264,7 +264,7 @@ def main():
         encoder_weights = {k.replace('encoder.', ''): v for k, v in best_model_state.items() if k.startswith('encoder.')}
         forward_model.encoder.load_state_dict(encoder_weights)
 
-        criterion_tamrl = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights)
+        criterion_tamrl = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device, y_scaler=y_scaler)
         optimizer_tamrl = optim.Adam(list(inverse_model.parameters()) + list(forward_model.parameters()), lr=1e-3)
         scheduler_tamrl = StepLR(optimizer_tamrl, step_size=10, gamma=0.5)
 

@@ -3,6 +3,7 @@ This module contains a custom torch function accounting for sample quality, IGBP
 using a physics-guided constraint.
 '''
 
+from sklearn.preprocessing import StandardScaler
 import torch
 
 class CustomLoss(torch.nn.Module):
@@ -10,7 +11,8 @@ class CustomLoss(torch.nn.Module):
     def __init__(self, 
                 IGBP_weights: dict,
                 Koppen_weights: dict,
-                device: str='cuda'
+                device: str='cuda',
+                y_scaler: StandardScaler=None
         ):
         super().__init__()
         self.mse = torch.nn.MSELoss(reduction='none')
@@ -22,6 +24,11 @@ class CustomLoss(torch.nn.Module):
         KOPPEN_CLASSES = ["A","B","C","D","E"]
         self.id2igbp = {i:c for i,c in enumerate(IGBP_CLASSES)}
         self.id2koppen = {i:c for i,c in enumerate(KOPPEN_CLASSES)}
+        if y_scaler is not None:
+            self.y_mean = torch.tensor(y_scaler.mean_, dtype=torch.float32, device=device)
+            self.y_scale = torch.tensor(y_scaler.scale_, dtype=torch.float32, device=device)
+        else:
+            self.y_mean = self.y_scale = None
 
     def forward(self, preds, targets, nee_qc=None, igbp=None, koppen=None, alpha=0.1): 
         mse_loss = self.mse(preds, targets)
@@ -37,9 +44,10 @@ class CustomLoss(torch.nn.Module):
             koppen = weights.reshape(koppen.shape)
             
         # Carbon balance constraint: NEE = -GPP + RECO
-        if targets.shape[-1]==3:
-            balance_nee = -(preds[:,:, 0]-preds[:,:, 1]) # -(GPP-RECO)
-            balance_error = self.mse(preds[:,:,2], balance_nee)
+        if targets.shape[-1]==3 and self.y_mean is not None:
+            preds_inv = preds * self.y_scale + self.y_mean # (GPP, RECO, NEE) in physical units
+            GPP, RECO, NEE = preds_inv.unbind(-1)
+            balance_error = self.mse(NEE, RECO - GPP)
         else:
             balance_error = 0
             

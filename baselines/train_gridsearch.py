@@ -169,7 +169,7 @@ def train_one_fold(args, fold, hyperparams, y_train, modis, era, cv_split, devic
     Koppen_weights = compute_class_weight(class_weight="balanced", classes=np.unique(Koppen), y=Koppen)
     Koppen_weights = {str(k): float(Koppen_weights[i]) for i, k in enumerate(np.unique(Koppen))}
     
-    criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device)
+    criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device, y_scaler=y_scaler)
     optimizer = optim.AdamW(model.parameters(), lr=hyperparams['lr'])
     scheduler = StepLR(optimizer, step_size=25, gamma=0.5)
     
@@ -250,7 +250,7 @@ def train_one_fold(args, fold, hyperparams, y_train, modis, era, cv_split, devic
         encoder_weights = {k.replace('encoder.', ''): v for k, v in best_model.items() if k.startswith('encoder.')}
         forward_model.encoder.load_state_dict(encoder_weights)
 
-        criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights) 
+        criterion = carbonfluxbench.CustomLoss(IGBP_weights, Koppen_weights, device=device, y_scaler=y_scaler)
         optimizer = optim.Adam(list(inverse_model.parameters())+list(forward_model.parameters()), lr=1e-3) 
         scheduler = StepLR(optimizer, step_size=10, gamma=0.5)
         
